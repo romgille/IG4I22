@@ -111,9 +111,9 @@ cv::Mat ccAreaFilter(cv::Mat image, int size)
             while(!stack.empty()) {
                 /* set current pixel */
                 Point2i pixel = stack.front();
-                numberOfPixels++;
-                pixelsSave.push_back(stack.front());
                 stack.erase(stack.begin());
+                pixelsSave.push_back(pixel);
+                numberOfPixels++;
 
                 /* for each neighbour of the current pixel */
                 for(Point2i neighbour: neighbours) {
@@ -130,7 +130,7 @@ cv::Mat ccAreaFilter(cv::Mat image, int size)
                         /* add it to the stack*/
                         stack.push_back(neighbour);
                         /* set group to the neighbour */
-                        res.at<int>(neighbour.x, neighbour.y) = group;
+                        res.at<float>(neighbour.x, neighbour.y) = group;
                     }
                 }
             }
