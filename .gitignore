@@ -31,6 +31,6 @@
 *.out
 *.app
 
-out.{jpg,png}
+out.*
 vgcore.*
 .svn
