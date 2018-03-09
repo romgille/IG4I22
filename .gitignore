@@ -34,3 +34,6 @@
 out.*
 vgcore.*
 .svn
+
+!obj/com/*
+bin/*
