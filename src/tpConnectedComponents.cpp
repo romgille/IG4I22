@@ -140,7 +140,7 @@ cv::Mat ccAreaFilter(cv::Mat image, int size)
             group++;
 
             if (numberOfPixels < size)
-               for (Point2i pixelSave : pixelsSave)
+                for (Point2i pixelSave : pixelsSave)
                     res.at<float>(pixelSave.x, pixelSave.y) = 0;
         }
     }
@@ -156,13 +156,63 @@ cv::Mat ccAreaFilter(cv::Mat image, int size)
 cv::Mat ccTwoPassLabel(cv::Mat image)
 {
     Mat res = Mat::zeros(image.rows, image.cols, CV_32SC1); // 32 int image
-    /********************************************
-      YOUR CODE HERE
-     *********************************************/
+    map<float, float> equivalence;
+    int label = 1;
 
-    /********************************************
-      END OF YOUR CODE
-     *********************************************/
+    for (int x = 0; x < image.rows; ++x) {
+        for (int y = 0; y < image.cols; ++y) {
+            Point2i pixel = {y, x};
+            /* If the element is the background */
+            if (image.at<float>(pixel) == 0) continue;
+
+            Point2i west = {y, x - 1};
+            Point2i north = {y - 1, x};
+
+            /* handle first pixel */
+            if (west.y < 0 && north.x < 0) {
+                res.at<int>(pixel) = label;
+                label += 1;
+            }
+
+            float westLabel = res.at<float>(west);
+            float northLabel = res.at<float>(north);
+
+            if (westLabel == 0 && northLabel == 0) {
+                res.at<int>(pixel) = label;
+                label += 1;
+            }
+            else if (westLabel != 0 && northLabel == 0) {
+                res.at<int>(pixel) = westLabel;
+            }
+
+            else if (westLabel == 0 && northLabel != 0) {
+                res.at<int>(pixel) = northLabel;
+            }
+            else if (westLabel == northLabel) {
+                res.at<int>(pixel) = northLabel;
+            }
+            else {
+                auto minmax = std::minmax(westLabel, northLabel);
+
+                res.at<int>(pixel) = minmax.first;
+
+                equivalence[minmax.second] = minmax.first;
+            }
+        }
+    }
+
+    for (int x = 0; x < image.rows; ++x) {
+        for (int y = 0; y < image.cols; ++y) {
+            Point2i pixel = {y, x};
+            /* If the element is the background */
+            if (image.at<float>(pixel) == 0) continue;
+
+            auto search = equivalence.find(res.at<float>(pixel));
+            if (search != equivalence.end()) {
+                res.at<int>(pixel) = search->second;
+            }
+        }
+    }
+
     return res;
-
 }
