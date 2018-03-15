@@ -30,16 +30,17 @@ Mat transpose(Mat image)
 float interpolate_nearest(Mat image, float y, float x)
 {
     float v=0;
-    /********************************************
-      YOUR CODE HERE
-     *********************************************/
 
+    int vx = round(x);
+    int vy = round(y);
 
-    /********************************************
-      END OF YOUR CODE
-     *********************************************/
+    if (vx > image.cols - 1) vx = x;
+
+    if (vy > image.rows - 1) vy = y;
+
+    v = image.at<float>(vy, vx);
+
     return v;
-
 }
 
 
@@ -68,13 +69,11 @@ Mat expand(Mat image, int factor, float(* interpolationFunction)(cv::Mat image, 
 {
     assert(factor>0);
     Mat res = Mat::zeros((image.rows-1)*factor,(image.cols-1)*factor,CV_32FC1);
-    /********************************************
-      YOUR CODE HERE
-     *********************************************/
 
-    /********************************************
-      END OF YOUR CODE
-     *********************************************/
+    for (float y = 0; y < res.rows; ++y)
+        for (float x = 0; x < res.cols; ++x)
+            res.at<float>(y, x) = interpolationFunction(image, y/factor, x/factor);
+
     return res;
 }
 
