@@ -31,16 +31,10 @@ float interpolate_nearest(Mat image, float y, float x)
 {
     float v=0;
 
-    int vx = round(x);
-    int vy = round(y);
+    int vx = (round(x) > image.cols - 1) ? x : round(x);
+    int vy = (round(y) > image.rows - 1) ? y : round(y);
 
-    if (vx > image.cols - 1) vx = x;
-
-    if (vy > image.rows - 1) vy = y;
-
-    v = image.at<float>(vy, vx);
-
-    return v;
+    return image.at<float>(vy, vx);
 }
 
 
@@ -50,15 +44,18 @@ float interpolate_nearest(Mat image, float y, float x)
 float interpolate_bilinear(Mat image, float y, float x)
 {
     float v=0;
-    /********************************************
-      YOUR CODE HERE
-     *********************************************/
+    float x1 = floor(x);
+    float y1 = floor(y);
+    float x2 = x1 + 1;
+    float y2 = y1 + 1;
+    float alpha = (x - x1)/(x2 - x1);
+    float beta = (y - y1)/(y2 - y1);
 
-    /********************************************
-      END OF YOUR CODE
-     *********************************************/
-    return v;
-
+    return
+        (1 - alpha) * (1 - beta) * image.at<float>(y1, x1) +
+        alpha * (1 - beta) * image.at<float>(y1, x2) +
+        beta * (1 - alpha) * image.at<float>(y2, x1) +
+        alpha * beta * image.at<float>(y2, x2);
 }
 
 /**
