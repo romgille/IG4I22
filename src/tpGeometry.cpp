@@ -29,8 +29,6 @@ Mat transpose(Mat image)
   */
 float interpolate_nearest(Mat image, float y, float x)
 {
-    float v=0;
-
     int vx = (round(x) > image.cols - 1) ? x : round(x);
     int vy = (round(y) > image.rows - 1) ? y : round(y);
 
@@ -43,7 +41,6 @@ float interpolate_nearest(Mat image, float y, float x)
   */
 float interpolate_bilinear(Mat image, float y, float x)
 {
-    float v=0;
     float x1 = floor(x);
     float y1 = floor(y);
     float x2 = x1 + 1;
@@ -84,37 +81,32 @@ Mat expand(Mat image, int factor, float(* interpolationFunction)(cv::Mat image, 
   */
 Mat rotate(Mat image, float angle, float(* interpolationFunction)(cv::Mat image, float y, float x))
 {
+    if (angle == 90) return transpose(image);
+
     Mat res = Mat::zeros(1,1,CV_32FC1);
-    /********************************************
-      YOUR CODE HERE
-hint: to determine the size of the output, take
-the bounding box of the rotated corners of the
-input image.
-     *********************************************/
     float resWidth = 0;
     float resHeight = 0;
     float pi = 3.14159265358979323846;
     float radAngle = (pi/180) * angle;
+    float radAngleI = radAngle - pi/2;
     Point2i center = {image.cols/2, image.rows/2};
 
     if (angle < 90) {
         resWidth = (image.cols * std::cos(radAngle)) + (image.rows * std::sin(radAngle));
         resHeight = (image.cols * std::sin(radAngle)) + (image.rows * std::cos(radAngle));
     }
-    else if (angle > 90) {
-        resWidth =
-            (image.rows * std::cos(radAngle - pi/2)) + (image.cols * std::sin(radAngle - pi/2));
-        resHeight =
-            (image.rows * std::sin(radAngle - pi/2)) + (image.cols * std::cos(radAngle - pi/2));
+    else{
+        resWidth = (image.rows * std::cos(radAngleI)) + (image.cols * std::sin(radAngleI));
+        resHeight = (image.rows * std::sin(radAngleI)) + (image.cols * std::cos(radAngleI));
     }
-    else if (angle == 90) return transpose(image);
 
     resize(res, res, Size(std::floor(resWidth), std::floor(resHeight) - 1)); // -1 pour le test
     Point2i centerRes = {res.cols/2, res.rows/2};
 
     for (float y = 0; y < res.rows; ++y) {
         for (float x = 0; x < res.cols; ++x) {
-            Point2i point = {x - centerRes.x, y - centerRes.y};
+            Point2i point = {(int)x, (int)y};
+            point -= centerRes;
 
             float resX = point.x * std::cos(-radAngle) - point.y * std::sin(-radAngle) + center.x;
             float resY = point.x * std::sin(-radAngle) + point.y * std::cos(-radAngle) + center.y;
@@ -124,9 +116,5 @@ input image.
             res.at<float>(y, x) = interpolationFunction(image, resY, resX);
         }
     }
-    /********************************************
-      END OF YOUR CODE
-     *********************************************/
     return res;
-
 }
