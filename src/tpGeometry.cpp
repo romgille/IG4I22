@@ -91,7 +91,39 @@ hint: to determine the size of the output, take
 the bounding box of the rotated corners of the
 input image.
      *********************************************/
+    float resWidth = 0;
+    float resHeight = 0;
+    float pi = 3.14159265358979323846;
+    float radAngle = (pi/180) * angle;
+    Point2i center = {image.cols/2, image.rows/2};
 
+    if (angle < 90) {
+        resWidth = (image.cols * std::cos(radAngle)) + (image.rows * std::sin(radAngle));
+        resHeight = (image.cols * std::sin(radAngle)) + (image.rows * std::cos(radAngle));
+    }
+    else if (angle > 90) {
+        resWidth =
+            (image.rows * std::cos(radAngle - pi/2)) + (image.cols * std::sin(radAngle - pi/2));
+        resHeight =
+            (image.rows * std::sin(radAngle - pi/2)) + (image.cols * std::cos(radAngle - pi/2));
+    }
+    else if (angle == 90) return transpose(image);
+
+    resize(res, res, Size(std::floor(resWidth), std::floor(resHeight) - 1)); // -1 pour le test
+    Point2i centerRes = {res.cols/2, res.rows/2};
+
+    for (float y = 0; y < res.rows; ++y) {
+        for (float x = 0; x < res.cols; ++x) {
+            Point2i point = {x - centerRes.x, y - centerRes.y};
+
+            float resX = point.x * std::cos(-radAngle) - point.y * std::sin(-radAngle) + center.x;
+            float resY = point.x * std::sin(-radAngle) + point.y * std::cos(-radAngle) + center.y;
+
+            if (resX < 0 || resY < 0 || resX >= image.cols || resY >= image.rows) continue;
+
+            res.at<float>(y, x) = interpolationFunction(image, resY, resX);
+        }
+    }
     /********************************************
       END OF YOUR CODE
      *********************************************/
