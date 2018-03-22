@@ -46,13 +46,31 @@ cv::Mat meanFilter(cv::Mat image, int size){
 Mat convolution(Mat image, cv::Mat kernel)
 {
     Mat res = image.clone();
-    /********************************************
-      YOUR CODE HERE
-     *********************************************/
+    int size = (kernel.rows - 1) / 2;
+    for (int y = 0; y < image.rows; ++y) {
+        for (int x = 0; x < image.cols; ++x) {
+            float sum = 0;
+            int count = -1;
+            Point2i pixel = {x, y};
+            Rect imageRect = Rect(0, 0, res.cols, res.rows);
 
-    /********************************************
-      END OF YOUR CODE
-     *********************************************/
+            for (int i = -size; i <= size; ++i) {
+                for (int j = -size; j <= size; ++j) {
+
+                    Point2i neighbour = {j, i};
+                    neighbour += pixel;
+                    count++;
+
+                    if (!neighbour.inside(imageRect)) continue;
+
+                    sum += image.at<float>(neighbour.y, neighbour.x) *
+                        kernel.at<float>(count%kernel.rows, count/kernel.rows);
+                }
+            }
+            res.at<float>(y, x) = sum;
+        }
+    }
+
     return res;
 }
 
