@@ -1,4 +1,5 @@
 #include "tpConvolution.h"
+#include "tpHistogram.h"
 #include <cmath>
 #include <algorithm>
 #include <tuple>
@@ -80,14 +81,29 @@ Mat convolution(Mat image, cv::Mat kernel)
 cv::Mat edgeSobel(cv::Mat image)
 {
     Mat res = image.clone();
-    /********************************************
-      YOUR CODE HERE
-     *********************************************/
+    float x[3][3] = {
+        {-1, 0, 1},
+        {-2, 0, 2},
+        {-1, 0, 1}
+    };
 
-    /********************************************
-      END OF YOUR CODE
-     *********************************************/
-    return res;
+    float y[3][3] = {
+        {-1, -2, -1},
+        {0, 0, 0},
+        {1, 2, 1}
+    };
+
+    cv::Mat dx = cv::Mat(3, 3, CV_32F, &x);
+    cv::Mat dy = cv::Mat(3, 3, CV_32F, &y);
+
+    cv::Mat res1 = convolution(image, dx);
+    cv::Mat res2 = convolution(image, dy);
+
+    for (int y = 0; y < image.rows; ++y)
+        for (int x = 0; x < image.cols; ++x)
+            res.at<float>(y, x) = abs(res1.at<float>(y, x)) + abs(res2.at<float>(y, x));
+
+    return normalize(res, 0, 1);
 }
 
 /**
