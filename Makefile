@@ -1,4 +1,4 @@
-CFLAGS = `pkg-config --cflags opencv` -Wall -ggdb -Wextra -pedantic -std=c++11 -Wno-unused-parameter
+CFLAGS = `pkg-config --cflags opencv` -Wall -ggdb -Wextra -pedantic -std=c++11 -Wno-unused-parameter -O2
 LIBS = `pkg-config --libs opencv` -lboost_program_options
 
 com_targets := $(addprefix bin/, $(basename $(notdir $(wildcard src/com/*.cpp))))
