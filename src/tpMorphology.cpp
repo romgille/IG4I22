@@ -62,15 +62,7 @@ Mat median(Mat image, int size)
   */
 Mat erode(Mat image, Mat structuringElement)
 {
-    Mat res = image.clone();
-    /********************************************
-      YOUR CODE HERE
-     *********************************************/
-
-    /********************************************
-      END OF YOUR CODE
-     *********************************************/
-    return res;
+    return 1 - dilate(1 - image, structuringElement);
 }
 
 
@@ -80,15 +72,32 @@ Mat erode(Mat image, Mat structuringElement)
   */
 Mat dilate(Mat image, Mat structuringElement)
 {
-    Mat res = Mat::zeros(1,1,CV_32FC1);
-    /********************************************
-      YOUR CODE HERE
-hint : 1 line of code is enough
-     *********************************************/
+    Mat res = image.clone();
+    Rect imageRect = Rect(0, 0, image.cols, image.rows);
+    int sizeRows = (structuringElement.rows) / 2;
+    int sizeCols = (structuringElement.cols) / 2;
 
-    /********************************************
-      END OF YOUR CODE
-     *********************************************/
+    for (int y = 0; y < image.rows; ++y) {
+        for (int x = 0; x < image.cols; ++x) {
+            Point2i pixel = {x, y};
+            float value = 0;
+
+            for (int i = -sizeRows; i <= sizeRows; ++i) {
+                for (int j = -sizeCols; j <= sizeCols; ++j) {
+
+                    Point2i neighbour = {j, i};
+                    neighbour += pixel;
+
+                    if (structuringElement.at<float>(i + sizeRows, j + sizeCols) != 1) continue;
+                    if (!neighbour.inside(imageRect)) continue;
+
+                    value = std::max(value, image.at<float>(neighbour.y, neighbour.x));
+                }
+            }
+            res.at<float>(y, x) = value;
+        }
+    }
+
     return res;
 }
 
