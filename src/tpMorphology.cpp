@@ -107,17 +107,7 @@ Mat dilate(Mat image, Mat structuringElement)
   */
 Mat open(Mat image, Mat structuringElement)
 {
-
-    Mat res = Mat::zeros(1,1,CV_32FC1);
-    /********************************************
-      YOUR CODE HERE
-hint : 1 line of code is enough
-     *********************************************/
-
-    /********************************************
-      END OF YOUR CODE
-     *********************************************/
-    return res;
+    return dilate(erode(image, structuringElement), structuringElement);
 }
 
 
@@ -126,17 +116,7 @@ hint : 1 line of code is enough
   */
 Mat close(Mat image, Mat structuringElement)
 {
-
-    Mat res = Mat::zeros(1,1,CV_32FC1);
-    /********************************************
-      YOUR CODE HERE
-hint : 1 line of code is enough
-     *********************************************/
-
-    /********************************************
-      END OF YOUR CODE
-     *********************************************/
-    return res;
+    return erode(dilate(image, structuringElement), structuringElement);
 }
 
 
